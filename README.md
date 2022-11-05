@@ -17,9 +17,9 @@ If you have successfully run it on other Huawei routers, let me know to add it t
 
 ## Operational content
 
-1. Find the unread SMS
-2. Send the SMS context via Pushover notification
-3. Set has been read status for this SMS
+1. Find the last unread SMS
+2. Send the SMS content via Pushover notification
+3. Set this SMS as "read"
 
 
 ## How to use
@@ -43,6 +43,15 @@ $ sudo chmod u+x check-sms.sh
 Then add at the end for every minute execution:
 ```console
 * * * * * /PATH/Huawei-LTE-Router-SMS-to-PushOver/check-sms.sh
+```
+or for every 10 seconds like what I'm doing
+```console
+* * * * * ( /PATH/check-sms.sh )  
+* * * * * ( sleep 10 ; /PATH/check-sms.sh )  
+* * * * * ( sleep 20 ; /PATH/check-sms.sh )  
+* * * * * ( sleep 30 ; /PATH/check-sms.sh )  
+* * * * * ( sleep 40 ; /PATH/check-sms.sh )  
+* * * * * ( sleep 50 ; /PATH/check-sms.sh )  
 ```
 Don't forget to change PATH.
 
