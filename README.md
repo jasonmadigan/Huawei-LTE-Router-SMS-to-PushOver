@@ -4,7 +4,7 @@ This python script will read your text messages then forward it to PushOver push
 - Instead of sending email, it will send a push notification using PushOver. PushOver is working fine on my Android Pixel, iPhone SE, and iPads
 - Making sure that PushOver have received the notification before marking the SMS as read, by reading the HTTP response
 - Hopefully it will also keep the SMS message unread if Internet connection is down, but I haven't tested that yet
-- It should be executed periodically with cronjobs. In my case I'm running it every 10 seconds in a Raspberry Pi
+- It should be executed periodically with cronjobs. In my case I'm running it every minute in a Raspberry Pi
 
 
 
@@ -35,7 +35,16 @@ $ nano .env
 $ python3 check-sms.py
 ```
 
-3. Periodically run it via crontab. I've set it to run to every 10 seconds
+3. To periodically run it via crontab. I've set it to run to every minute
+```console
+sudo chmod u+x check-sms.sh
+```
+
+Then add at the end for every minute execution:
+```console
+* * * * * /PATH/Huawei-LTE-Router-SMS-to-PushOver/check-sms.sh
+```
+Don't forget to change PATH.
 
 ### Necessary Environment Variables
 * `HUAWEI_ROUTER_PASSWORD` Huawei router login password (example: 123456). Leave empty if none
