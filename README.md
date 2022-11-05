@@ -1,26 +1,33 @@
-# Huawei LTE Router SMS to E-mail Sender
+# Huawei LTE Router SMS to PushOver Notifications
 
-The python script can help you read your sms from e-mail box.
+This python script will read your text messages then forward it to PushOver push notification. It's forked from [chenwei791129/Huawei-LTE-Router-SMS-to-E-mail-Sender](https://github.com/chenwei791129/Huawei-LTE-Router-SMS-to-E-mail-Sender) but with some changes:
+- Instead of sending email, it will send a push notification using PushOver. PushOver is working fine on my Android Pixel, iPhone SE, and iPads
+- Making sure that PushOver have received the notification before marking the SMS as read, by reading the HTTP response
+- Hopefully it will also keep the SMS message unread if Internet connection is down, but I haven't tested that yet
+- It should be executed periodically with cronjobs. In my case I'm running it every 10 seconds in a Raspberry Pi
+
+
 
 Tested on:
-* HUAWEI B315s-22
-* HUAWEI B525s-65a
+* HUAWEI Huawei H112-372
+* HUAWEI E3372
+* Raspberry Pi 4 Bullseye 64-bit
 
-if you success use for other huawei router, you can feedback for me.
+If you have successfully run it on other Huawei routers, let me know to add it to the list.
 
 ## Operational content
 
 1. Find the unread SMS
-2. Send the SMS context via email
+2. Send the SMS context via Pushover notification
 3. Set has been read status for this SMS
-4. Loop to step 1
+
 
 ## How to use
 
 1. copy .env.example to .env
 ```console
 $ cp .env.example .env
-$ vim .env
+$ nano .env
 ```
 
 2. just run it!
@@ -28,23 +35,17 @@ $ vim .env
 $ python3 check-sms.py
 ```
 
-## Via Docker
-[![This image on DockerHub](https://img.shields.io/docker/pulls/awei/huawei-lte-router-sms-to-email-sender.svg)](https://hub.docker.com/r/awei/huawei-lte-router-sms-to-email-sender/)
+3. Periodically run it via crontab. I've set it to run to every 10 seconds
 
-[View on Docker Hub](https://hub.docker.com/r/awei/huawei-lte-router-sms-to-email-sender)
-```console
-$ docker run -e HUAWEI_ROUTER_PASSWORD=<password> -e GMAIL_ACCOUNT=<gmail-account> -e GMAIL_PASSWORD=<gmail-password> -e MAIL_RECIPIENT=<your-email-address> -d awei/huawei-lte-router-sms-to-email-sender
-```
 ### Necessary Environment Variables
-* `HUAWEI_ROUTER_PASSWORD` Huawei router login password (example: 123456)
-* `GMAIL_ACCOUNT` gmail account for smtp login (example: user@gmail.com)
-* `GMAIL_PASSWORD` gmail password for smtp login (example: P@ssw0rd)
-* `MAIL_RECIPIENT` Comma separated recipient (example: user1@livemail.tw,user2@gmail.com)
+* `HUAWEI_ROUTER_PASSWORD` Huawei router login password (example: 123456). Leave empty if none
+* `PUSHOVER_TOKEN` API Token you get when creating a new application in PushOver.net
+* `PUSHOVER_USER` Your user key from PushOver
 
 ### Option Environment Variables
 * `HUAWEI_ROUTER_IP_ADDRESS` Huawei router IP address (default: 192.168.8.1)
 * `HUAWEI_ROUTER_ACCOUNT` Huawei router login account (default: admin)
-* `DELAY_SECOND` Waiting seconds for each check (default: 10)
+* `ROUTER_NAME` Router name you will see as part of the forwarded message. It'll help distinguish your routers if you have multiple routers.
 * `LOCALE` Set lang (default: en_US, support en_US, zh_TW, zh_HK, zh_CN)
 
 
@@ -56,3 +57,6 @@ $ docker run -e HUAWEI_ROUTER_PASSWORD=<password> -e GMAIL_ACCOUNT=<gmail-accoun
 ## License
 
 The python script is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
