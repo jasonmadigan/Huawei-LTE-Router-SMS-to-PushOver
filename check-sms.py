@@ -1,8 +1,10 @@
 import os
-import smtplib
 import json
 import gettext
 import time
+import sys
+import http.client, urllib, json
+
 
 lang = {
     'zh_TW': "zh_TW",
@@ -26,6 +28,20 @@ def runningInDocker():
     except:
         pass
     return False
+
+# For debugging -------
+from typing import Any, Callable
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), os.path.pardir))
+import pprint
+def dump(method: Callable[[], Any]) -> None:
+    print("==== %s" % method.__qualname__)
+    try:
+        pprint.pprint(method())
+    except Exception as e:
+        print(str(e))
+    print("")
+# --------    
+
 
 # Test and inatall the required module and load dotenv if not in docker
 if not runningInDocker():
@@ -55,71 +71,72 @@ import huawei_lte_api.exceptions
 HUAWEI_ROUTER_IP_ADDRESS = os.getenv("HUAWEI_ROUTER_IP_ADDRESS")
 HUAWEI_ROUTER_ACCOUNT = os.getenv("HUAWEI_ROUTER_ACCOUNT")
 HUAWEI_ROUTER_PASSWORD = os.getenv("HUAWEI_ROUTER_PASSWORD")
-GMAIL_ACCOUNT = os.getenv("GMAIL_ACCOUNT")
-GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
-MAIL_RECIPIENT = os.getenv("MAIL_RECIPIENT").split(",")
-DELAY_SECOND = int(os.getenv("DELAY_SECOND"))
+PUSHOVER_TOKEN = os.getenv("PUSHOVER_TOKEN")
+PUSHOVER_USER = os.getenv("PUSHOVER_USER")
+ROUTER_NAME = os.getenv("ROUTER_NAME")
 
 connection = None
 client = None
 
-# Use infinite loop to check SMS
-while True:
-    try:
-        # Establish a connection with authorized
+
+try:
+    # Establish a connection with authorized
+    # Will URL format is different for when you have password disabled
+    if HUAWEI_ROUTER_PASSWORD == "":
+        connection = AuthorizedConnection('http://{}/'.format(HUAWEI_ROUTER_IP_ADDRESS))
+    else:
         connection = AuthorizedConnection('http://{}:{}@{}/'.format(HUAWEI_ROUTER_ACCOUNT, HUAWEI_ROUTER_PASSWORD, HUAWEI_ROUTER_IP_ADDRESS))
-        client = Client(connection)
+    client = Client(connection)
 
-        # get first SMS(unread priority)
-        sms = client.sms.get_sms_list(1, BoxTypeEnum.LOCAL_INBOX, 1, 0, 0, 1)
+    # get first SMS(unread priority)
+    sms = client.sms.get_sms_list(1, BoxTypeEnum.LOCAL_INBOX, 1, 0, 0, 1)
+
+    # Exit if no messages
+    if sms['Messages'] == None:   
+        sys.exit()
+
+    # Exit if the SMS was read
+    if int(sms['Messages']['Message']['Smstat']) == 1:     
+        sys.exit()
+
+    # For debugging
+    #dump(client.sms.get_sms_list)
+    #print(client.device.information())
+    #print(client.device.basic_information())
+
+    # Compile the message
+    device_model = client.device.information()['DeviceName']
+    message = 'SMS from ' + ROUTER_NAME + ' (Huawei ' + device_model + ')\n'
+    message += 'FROM: ' + sms['Messages']['Message']['Phone'] + ' - '
+    message += 'DATE: ' + sms['Messages']['Message']['Date'] + '\n' 
+    message += 'CONTENT:\n'
+    message += sms['Messages']['Message']['Content']
+    print('+++++++++++\n' + message + '\n+++++++++++\n')
         
-        # Skip this loop if no messages
-        if sms['Messages'] == None:
-            # Logout
-            client.user.logout()
-            #Inspection interval(second)
-            time.sleep(DELAY_SECOND)
-            continue
+    # Send notification to PushOver
+    conn = http.client.HTTPSConnection("api.pushover.net:443")
+    conn.request("POST", "/1/messages.json",
+    urllib.parse.urlencode({
+        "token": PUSHOVER_TOKEN,
+        "user": PUSHOVER_USER,
+        "message": message,
+    }), { "Content-type": "application/x-www-form-urlencoded" })
+    response = conn.getresponse()
+    responseString = response.read().decode('utf-8')
+    json_obj = json.loads(responseString)  
 
-        # Skip this loop if the SMS was read
-        if int(sms['Messages']['Message']['Smstat']) == 1:
-            # Logout
-            client.user.logout()
-            #Inspection interval(second)
-            time.sleep(DELAY_SECOND)
-            continue
+    if response.status == 200 and json_obj['status'] == 1:
+        # Mark as read if successfully sent
+        client.sms.set_read(int(sms['Messages']['Message']['Index']))
+        print('Pushover notification sent. All good!')
+    else:
+        print("Pushover failed. Reason: " + response.reason)
+        print(responseString)
 
-        # Find a new SMS, go send e-mail！
-        print(_('{Date} Find a new SMS ID:{Message_Index}! from {Phone_Number}').format(Date=sms['Messages']['Message']['Date'], Message_Index=sms['Messages']['Message']['Index'], Phone_Number=sms['Messages']['Message']['Phone']))
+except huawei_lte_api.exceptions.ResponseErrorLoginRequiredException as e:
+    print(_('Session timeout, login again!'))
+except huawei_lte_api.exceptions.LoginErrorAlreadyLoginException as e:
+    client.user.logout()
+except Exception as e:
+    print(_('There is an error!\nError message:\n{error_msg}').format(error_msg=e))
 
-        # send e-mail
-        msg = MIMEMultipart()
-        msg['Subject'] = _('You have a message from {Phone_Number}').format(Phone_Number=sms['Messages']['Message']['Phone'])
-        body = _('Message date:{Date}\nMessage content：\n {Content}').format(Date=sms['Messages']['Message']['Date'], Content=sms['Messages']['Message']['Content'])
-        msg.attach(MIMEText(body, 'plain'))
-
-        try:
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(GMAIL_ACCOUNT, GMAIL_PASSWORD)
-            server.sendmail(GMAIL_ACCOUNT, MAIL_RECIPIENT, msg.as_string())
-            server.quit()
-            print(_('ID:{Message_Index} from {Phone_Number} was successfully sent!').format(Message_Index=sms['Messages']['Message']['Index'], Phone_Number=sms['Messages']['Message']['Phone']))
-            # Set the SMS status was read
-            client.sms.set_read(int(sms['Messages']['Message']['Index']))
-            # Logout
-            client.user.logout()
-        except Exception as e:
-            try:
-                client.user.logout()
-            except Exception as e:
-                continue
-            print(_('ID:{Message_Index} from {Phone_Number} failed to send! \nError message:\n{error_msg}').format(Message_Index=sms['Messages']['Message']['Index'], Phone_Number=sms['Messages']['Message']['Phone'], error_msg=e))
-    except huawei_lte_api.exceptions.ResponseErrorLoginRequiredException as e:
-        print(_('Session timeout, login again!'))
-    except huawei_lte_api.exceptions.LoginErrorAlreadyLoginException as e:
-        client.user.logout()
-    except Exception as e:
-        print(_('Router connection failed! Please check the settings. \nError message:\n{error_msg}').format(error_msg=e))
