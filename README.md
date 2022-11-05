@@ -17,7 +17,7 @@ If you have successfully run it on other Huawei routers, let me know to add it t
 
 ## Operational content
 
-1. Find the last unread SMS
+1. Find an unread SMS
 2. Send the SMS content via Pushover notification
 3. Set this SMS as "read"
 
