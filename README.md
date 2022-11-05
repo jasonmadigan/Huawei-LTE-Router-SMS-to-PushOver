@@ -1,6 +1,6 @@
 # Huawei LTE Router SMS to PushOver Notifications
 
-This python script will read your text messages then forward it to PushOver push notification. It's forked from [chenwei791129/Huawei-LTE-Router-SMS-to-E-mail-Sender](https://github.com/chenwei791129/Huawei-LTE-Router-SMS-to-E-mail-Sender) but with some changes:
+This python script will read your text messages from Huawei router with HiLink then forward it to PushOver push notification. It's forked from [chenwei791129/Huawei-LTE-Router-SMS-to-E-mail-Sender](https://github.com/chenwei791129/Huawei-LTE-Router-SMS-to-E-mail-Sender) but with some changes:
 - Instead of sending email, it will send a push notification using PushOver. PushOver is working fine on my Android Pixel, iPhone SE, and iPads
 - Making sure that PushOver have received the notification before marking the SMS as read, by reading the HTTP response
 - Hopefully it will also keep the SMS message unread if Internet connection is down, but I haven't tested that yet
