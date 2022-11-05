@@ -37,7 +37,7 @@ $ python3 check-sms.py
 
 3. To periodically run it via crontab. I've set it to run to every minute
 ```console
-sudo chmod u+x check-sms.sh
+$ sudo chmod u+x check-sms.sh
 ```
 
 Then add at the end for every minute execution:
