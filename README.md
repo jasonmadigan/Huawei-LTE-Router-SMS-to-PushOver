@@ -9,8 +9,9 @@ This python script will read your text messages then forward it to PushOver push
 
 
 Tested on:
-* HUAWEI Huawei H112-372
-* HUAWEI E3372
+* Huawei H112-372
+* Huawei H112-370
+* Huawei E3372
 * Raspberry Pi 4 Bullseye 64-bit
 
 If you have successfully run it on other Huawei routers, let me know to add it to the list.
