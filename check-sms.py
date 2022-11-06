@@ -93,10 +93,14 @@ try:
 
     # Exit if no messages
     if sms['Messages'] == None:   
+        # Logout
+        client.user.logout()
         sys.exit()
 
     # Exit if the SMS was read
     if int(sms['Messages']['Message']['Smstat']) == 1:     
+        # Logout
+        client.user.logout()
         sys.exit()
 
     # For debugging
