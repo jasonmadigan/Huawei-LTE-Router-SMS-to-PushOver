@@ -13,6 +13,7 @@ Tested on:
 * Huawei H112-370
 * Huawei E3372
 * Huawei E5573Cs-322
+* Huawei E5373s-155
 * Raspberry Pi 4 Bullseye 64-bit
 
 If you have successfully run it on other Huawei routers, let me know to add it to the list.
