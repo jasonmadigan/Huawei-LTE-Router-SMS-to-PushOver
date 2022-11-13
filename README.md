@@ -8,7 +8,7 @@ This python script will read your text messages from Huawei router with HiLink t
 
 
 
-Tested on:
+I've personally tested on:
 * Huawei H112-372
 * Huawei H112-370
 * Huawei E3372
