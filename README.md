@@ -4,7 +4,7 @@ This python script will read your text messages from Huawei router with HiLink t
 - Instead of sending email, it will send a push notification using PushOver. PushOver is working fine on my Android Pixel, iPhone SE, and iPads
 - Making sure that PushOver have received the notification before marking the SMS as read, by reading the HTTP response
 - Hopefully it will also keep the SMS message unread if Internet connection is down, but I haven't tested that yet
-- It should be executed periodically with cronjobs. In my case I'm running it every 10 seconds in a Raspberry Pi
+- It should be executed periodically with cronjobs. In my case I'm running it every 20 seconds in a Raspberry Pi
 
 
 
@@ -50,11 +50,8 @@ Then add at the end for every minute execution:
 or check every 10 seconds:
 ```console
 * * * * * ( /PATH/check-sms.sh )  
-* * * * * ( sleep 10 ; /PATH/check-sms.sh )  
 * * * * * ( sleep 20 ; /PATH/check-sms.sh )  
-* * * * * ( sleep 30 ; /PATH/check-sms.sh )  
 * * * * * ( sleep 40 ; /PATH/check-sms.sh )  
-* * * * * ( sleep 50 ; /PATH/check-sms.sh )  
 ```
 Don't forget to change PATH.
 
