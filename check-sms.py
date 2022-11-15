@@ -81,14 +81,14 @@ client = None
 
 try:
     # Establish a connection with authorized
-    # Will URL format is different for when you have password disabled
+    # URL format is different for when you have password disabled
     if HUAWEI_ROUTER_PASSWORD == "":
         connection = AuthorizedConnection('http://{}/'.format(HUAWEI_ROUTER_IP_ADDRESS))
     else:
         connection = AuthorizedConnection('http://{}:{}@{}/'.format(HUAWEI_ROUTER_ACCOUNT, HUAWEI_ROUTER_PASSWORD, HUAWEI_ROUTER_IP_ADDRESS))
     client = Client(connection)
 
-    # get first SMS(unread priority)
+    # get SMS (unread priority)
     sms = client.sms.get_sms_list(1, BoxTypeEnum.LOCAL_INBOX, 1, 0, 0, 1)
 
     # Exit if no messages
