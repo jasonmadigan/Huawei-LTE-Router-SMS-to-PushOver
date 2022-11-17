@@ -19,6 +19,8 @@ Tested on:
 
 If you have successfully run it on other Huawei routers, let me know to add it to the list.
 
+(*) You have to wait for several minute before the script successfuly works on E8372.
+
 ## Operational content
 
 1. Find an unread SMS
