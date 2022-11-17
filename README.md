@@ -14,10 +14,8 @@ Tested on:
 * Huawei E3372
 * Huawei E5573Cs-322
 * Huawei E5373s-155
+* Huawei E8372*
 * Raspberry Pi 4 Bullseye 64-bit
-
-Did not work on:
-* Huawei E8372
 
 If you have successfully run it on other Huawei routers, let me know to add it to the list.
 
