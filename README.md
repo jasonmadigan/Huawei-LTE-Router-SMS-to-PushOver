@@ -74,7 +74,11 @@ Don't forget to change PATH.
 ### Building
 
 ```bash
-docker build -t jasonmadigan/huawei-sms-pushover:latest . --push
+docker buildx create --use
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t jasonmadigan/huawei-sms-pushover:latest . \
+  --push
 ```
 
 ### Running
