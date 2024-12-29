@@ -69,6 +69,28 @@ Don't forget to change PATH.
 * `ROUTER_NAME` Router name you will see as part of the forwarded message. It'll help distinguish your routers if you have multiple routers.
 * `LOCALE` Set lang (default: en_US, support en_US, zh_TW, zh_HK, zh_CN)
 
+## Docker Building & Usage
+
+### Building
+
+```bash
+docker build -t jasonmadigan/huawei-sms-pushover:latest . --push
+```
+
+### Running
+
+```bash
+docker run \
+  -e HUAWEI_ROUTER_IP_ADDRESS=192.168.8.1 \
+  -e HUAWEI_ROUTER_ACCOUNT=admin \
+  -e HUAWEI_ROUTER_PASSWORD='password' \
+  -e PUSHOVER_TOKEN=app_token \
+  -e PUSHOVER_USER=user_token \
+  -e ROUTER_NAME=MyRouter \
+  -e LOCALE=en_US \
+  -e CHECK_INTERVAL=300 \
+  jasonmadigan/huawei-sms-pushover:latest
+```
 
 ## Related Projects
 
